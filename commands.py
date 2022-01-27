@@ -1,4 +1,8 @@
 
+import logging
+
+log = logging.getLogger(__name__)
+
 commands = {}
 
 def command(name):
@@ -13,9 +17,10 @@ def backup_config(switch, args):
 
 @command("save-cmd-results")
 def save_cmd_results(switch, args):
-    if args.cmd is None:
+    if not hasattr(args, "cli_command"):
         raise ValueError("Must supply command through -c 'command' switch")
-    switch.save_cmd_results(args.cmd, args.dest_path)
+    log.info(f"running \"{args.cli_command}\" -> {args.dest_path}")
+    switch.save_cmd_results(args.cli_command, args.dest_path)
 
 @command("scan-ports")
 def scan_ports(switch, args):
