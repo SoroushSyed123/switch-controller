@@ -23,6 +23,7 @@ def setup_parser():
     parser.add_argument("--dest-path", default="running.conf")
     parser.add_argument("-s", "--scheme", default="http")
     parser.add_argument("-m", "--manuf", default="manuf.txt")
+    parser.add_argument("-c", "--command", default=None)
 
     return parser
 
