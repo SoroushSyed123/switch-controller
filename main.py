@@ -20,16 +20,17 @@ def setup_parser():
     parser.add_argument("-u", "--username")
     parser.add_argument("-p", "--password")
     parser.add_argument("--http-provider", default="requests")
-    parser.add_argument("--dest-path", default="running.conf")
+    parser.add_argument("--dest-path", default="output.txt")
     parser.add_argument("-s", "--scheme", default="http")
     parser.add_argument("-m", "--manuf", default="manuf.txt")
-    parser.add_argument("-c", "--command", default=None)
+    parser.add_argument("-c", "--cli-command", default=None)
 
     return parser
 
 def setup_logging(log_path="log.txt", fmt=BASIC_FORMAT):
 
     log = getLogger()
+    log.setLevel(DEBUG)
     formatter = Formatter(fmt)
     handler = StreamHandler()
 
@@ -48,6 +49,7 @@ def main():
     parser = setup_parser()
     log = setup_logging()
     args = parser.parse_args()
+    log.debug(args)
 
     if args.username is not None and args.password is not None:
         auth = SimpleAuthProvider(args.username, args.password)
@@ -81,7 +83,7 @@ def main():
     try:
         commands[args.command](switch, args)
     except KeyError:
-        log.error(f"unknown command \"{command}\"")
+        log.error(f"unknown command \"{args.command}\"")
         log.error(f"valid commands are {','.join(commands.keys())}")
         return
 
