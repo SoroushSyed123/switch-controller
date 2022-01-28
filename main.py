@@ -14,6 +14,7 @@ from switch import NetworkSwitch
 
 def setup_parser():
 
+    # Setup some command line argument parsing.
     parser = ArgumentParser(description="Switch controler program")
     parser.add_argument("command")
     parser.add_argument("host")
