@@ -77,6 +77,9 @@ def main():
     if scheme == "http":
         log.warning("HTTP REST requests are not secure")
 
+    # Lets us specify the hostname in stdin instead of CLI args.
+    if args.host == "-":
+        args.host = input()
     adapter = RESTSwitchAdapter(scheme, args.host, http, auth, log=log)
     manuf_db = ManufDatabase(args.manuf)
     switch = NetworkSwitch(adapter, manuf_db)
