@@ -1,5 +1,8 @@
 
 class ManufEntry:
+    """MAC address information. Includes the manufacturer said MAC address
+        is associated with.
+    """
     def __init__(self, prefix, prefix_len, manuf, desc):
         self.prefix = prefix
         self.prefix_len = prefix_len
@@ -7,6 +10,10 @@ class ManufEntry:
         self.desc = desc
 
 class ManufDatabase:
+    """Loads a database of MAC address to manufacturer mappings. The database
+        file is located here:
+        https://gitlab.com/wireshark/wireshark/-/raw/master/manuf
+    """
     def __init__(self, file_path):
         self.entries = {}
         # FIXME: Move the parsing / file loading into a private helper function.
@@ -32,6 +39,12 @@ class ManufDatabase:
                 entry = ManufEntry(prefix, prefix_len, manuf, desc)
                 self.entries[prefix] = entry
     def query(self, mac_addr, prefix_len=24):
+        """Query the database for the manufacturer entry using the specified
+            MAC address. Will return a `ManufEntry` which holds the manufacturer 
+            name and description that said mac address belongs to.
+        :param mac_addr: MAC address string, in this format: FF:FF:FF:FF:FF:FF
+        :returns: `ManufEntry` or None if the MAC cannot be found.
+        """
         # TODO: Handle non-24 bit prefix lengths here.
         mac_addr = mac_addr.replace(":", "")
         mac_addr = int(mac_addr, base=16)
