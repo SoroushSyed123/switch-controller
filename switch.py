@@ -74,8 +74,7 @@ def main():
     auth = CLIAuthProvider()
     host = input("Host: ")
     # Setup an adapter to communicate with the network switch.
-    adapter = RESTSwitchAdapter("http", host, requests, auth,
-            log=log)
+    adapter = RESTSwitchAdapter("http", host, requests, auth)
     # Load a database of MAC address to manufactuer mappings.
     manuf_db = ManufDatabase("manuf.txt")
     # Create the switch object.

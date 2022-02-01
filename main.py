@@ -80,7 +80,7 @@ def main():
     # Lets us specify the hostname in stdin instead of CLI args.
     if args.host == "-":
         args.host = input()
-    adapter = RESTSwitchAdapter(scheme, args.host, http, auth, log=log)
+    adapter = RESTSwitchAdapter(scheme, args.host, http, auth)
     manuf_db = ManufDatabase(args.manuf)
     switch = NetworkSwitch(adapter, manuf_db)
 
