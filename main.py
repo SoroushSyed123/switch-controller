@@ -25,6 +25,7 @@ def setup_parser():
     parser.add_argument("-s", "--scheme", default="http")
     parser.add_argument("-m", "--manuf", default="manuf.txt")
     parser.add_argument("-c", "--cli-command", default=None)
+    parser.add_argument("-l", "--log-path", default="log.txt")
 
     return parser
 
@@ -45,12 +46,9 @@ def setup_logging(log_path="log.txt", fmt=BASIC_FORMAT):
         log.addHandler(handler)
     return log
 
-def main():
+log = None
 
-    parser = setup_parser()
-    log = setup_logging()
-    args = parser.parse_args()
-    log.debug(args)
+def _main(args):
 
     if args.username is not None and args.password is not None:
         auth = SimpleAuthProvider(args.username, args.password)
@@ -90,6 +88,17 @@ def main():
         log.error(f"unknown command \"{args.command}\"")
         log.error(f"valid commands are {','.join(commands.keys())}")
         return
+
+def main():
+
+    parser = setup_parser()
+    args = parser.parse_args()
+
+    try:
+        log = setup_logging(log_path=args.log_path)
+        _main(args)
+    except Exception:
+        log.exception()
 
 if __name__ == "__main__":
     main()
