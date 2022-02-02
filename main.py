@@ -46,9 +46,7 @@ def setup_logging(log_path="log.txt", fmt=BASIC_FORMAT):
         log.addHandler(handler)
     return log
 
-log = None
-
-def _main(args):
+def _main(args, log):
 
     if args.username is not None and args.password is not None:
         auth = SimpleAuthProvider(args.username, args.password)
@@ -96,7 +94,7 @@ def main():
 
     try:
         log = setup_logging(log_path=args.log_path)
-        _main(args)
+        _main(args, log)
     except Exception:
         log.exception("unhandled exception in main()")
 
