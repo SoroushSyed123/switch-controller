@@ -6,6 +6,9 @@ from cliauthprovider import CLIAuthProvider
 from os import environ
 from restadapter import RESTSwitchAdapter
 from manuf import ManufDatabase
+from logging import getLogger
+
+log = getLogger(__name__)
 
 class NetworkSwitch:
     def __init__(self, adapter, manuf_db):
@@ -25,38 +28,37 @@ class NetworkSwitch:
         response = self.adapter.run_cmd(cmd)
         with open(dest_path, "wb") as handle:
             handle.write(response.results)
-    def scan_ports(self):
+    def mac_address_printout(self):
         """
         Give a printout of MAC address to manufacturer mappings for each port
         on the switch. Useful to figure out what is connected to your network.
         """
+        results = self.mac_addr_report()
+        for portno in results:
+            log.info(f"port {portno}")
+            for entry, mac_addr in results[portno]:
+                log.info(f"{mac_addr}: {entry.manuf}")
+
+    def mac_addr_report(self):
+
         response = self.adapter.run_cmd("show mac-address")
-        # There are 5 lines of pretty printed borders and table headers.
-        results = str(response.results, encoding="utf-8").split("\n")[5:]
-        # MAC-Address Port VLAN
-        mapping = {}
+        results = response.results.split("\n")[5:]
+        mappings = {}
+
         for result in results:
             try:
                 [ mac_addr, port, vlan_id ] = result.split()
             except ValueError:
                 continue
+            entry = self.manuf_db.query(mac_addr.replace("-", ""))
+            if entry is None:
+                continue
             try:
-                mapping[port].append(mac_addr)
+                mappings[port].append((entry, mac_addr))
             except KeyError:
-                mapping[port] = [ mac_addr ]
+                mappings[port] = [ (entry, mac_addr) ]
 
-        # TODO: Return a class with all this information instead of just 
-        # printing it out.
-        sorted_keys = [ *mapping.keys() ]
-        sorted_keys.sort()
-        for key in sorted_keys:
-            print(f"Port #{key}")
-            for addr in mapping[key]:
-                addr = addr.replace("-", "")
-                manuf = self.manuf_db.query(addr)
-                if manuf is None:
-                    manuf = "Unknown"
-                print(f"{addr} = {manuf.manuf}")
+        return mappings
 
 def setup_logging(name=__name__, level=logging.DEBUG, fmt=logging.BASIC_FORMAT):
     log = logging.getLogger(name)

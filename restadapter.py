@@ -31,9 +31,8 @@ class RESTSwitchAdapter(SwitchAdapter):
             if not (199 < resp.status_code < 399):
                 raise HTTPError(resp)
             resp_json = json.loads(resp.text)
-            result = base64.b64decode(resp_json.pop("result_base64_encoded",
-                None))
-            resp_json["results"] = result
+            result = base64.b64decode(resp_json.pop("result_base64_encoded"))
+            resp_json["results"] = str(result, encoding="utf-8")
             return SwitchResponse(**resp_json)
     class Session:
         def __init__(self, http, auth, url):

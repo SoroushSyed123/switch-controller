@@ -22,6 +22,6 @@ def save_cmd_results(switch, args):
     log.info(f"running \"{args.cli_command}\" -> {args.dest_path}")
     switch.save_cmd_results(args.cli_command, args.dest_path)
 
-@command("scan-ports")
-def scan_ports(switch, args):
-    switch.scan_ports()
+@command("mac-addr-printout")
+def mac_address_printout(switch, args):
+    switch.mac_address_printout()
