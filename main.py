@@ -98,7 +98,7 @@ def main():
         log = setup_logging(log_path=args.log_path)
         _main(args)
     except Exception:
-        log.exception()
+        log.exception("unhandled exception in main()")
 
 if __name__ == "__main__":
     main()
