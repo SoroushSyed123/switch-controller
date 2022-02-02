@@ -67,23 +67,25 @@ class CurlHTTPProvider(HTTPProvider):
         if not "content-type" in ns.headers:
             raise ValueError("Expected content-type in response")
 
+        ns.charset = "ISO-8859-1"
         # Read here for more info:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-        [ content_type, directives ] = ns.headers["content-type"].split(";", 1)
+        content_type = ns.headers["content-type"]
+        if ";" in content_type:
+            [ content_type, directives ] = ns.headers["content-type"].split(";",
+                    1)
 
-        # Default charset.
-        ns.charset = "ISO-8859-1"
-        ns.directives = {}
+            ns.directives = {}
 
-        for directive in directives.strip().split(" "):
-            [ key, value ] = directive.split("=")
-            ns.directives[key] = value
+            for directive in directives.strip().split(" "):
+                [ key, value ] = directive.split("=")
+                ns.directives[key] = value
 
-        try:
-            ns.charset = ns.directives["charset"]
-        except KeyError:
-            # We have already set the default, do nothing.
-            pass
+            try:
+                ns.charset = ns.directives["charset"]
+            except KeyError:
+                # We have already set the default, do nothing.
+                pass
 
         ns.content = stdout[headers_end+4:]
         log.debug(f"received {len(ns.content)} chars")

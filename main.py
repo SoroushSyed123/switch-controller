@@ -96,6 +96,7 @@ def main():
         log = setup_logging(log_path=args.log_path)
         _main(args, log)
     except Exception:
+        # FIXME: If we cannot open our log file, then this raises an exception ...
         log.exception("unhandled exception in main()")
 
 if __name__ == "__main__":
