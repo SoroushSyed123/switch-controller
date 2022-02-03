@@ -30,6 +30,12 @@ def setup_parser():
     return parser
 
 def setup_logging(log_path="log.txt", fmt=BASIC_FORMAT):
+    """Sets up the root logger.
+    :param log_path: Log file path.
+    :param fmt: Formatter string.
+    :returns: A tuple. First value is the logging, object, and second is either
+        None, for no errors, or an IOError if the log file cannot be opened.
+    """
 
     log = getLogger()
     log.setLevel(DEBUG)
@@ -40,11 +46,14 @@ def setup_logging(log_path="log.txt", fmt=BASIC_FORMAT):
     log.addHandler(handler)
 
     if log_path is not None:
-        handler = FileHandler(log_path)
+        try:
+            handler = FileHandler(log_path)
+        except IOError as error:
+            return (log, error)
 
         handler.setFormatter(formatter)
         log.addHandler(handler)
-    return log
+    return (log, None)
 
 def _main(args, log):
 
@@ -91,12 +100,17 @@ def main():
 
     parser = setup_parser()
     args = parser.parse_args()
+    log, exc = setup_logging(log_path=args.log_path)
+
+    if isinstance(exc, IOError):
+        # We couldn't open our log file, show traceback an exit.
+        exc_info = (IOError, exc, exc.__traceback__)
+        log.exception("cannot open log file for writing", exc_info=exc_info)
+        exit(-1)
 
     try:
-        log = setup_logging(log_path=args.log_path)
         _main(args, log)
     except Exception:
-        # FIXME: If we cannot open our log file, then this raises an exception ...
         log.exception("unhandled exception in main()")
 
 if __name__ == "__main__":
