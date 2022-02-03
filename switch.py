@@ -26,7 +26,7 @@ class NetworkSwitch:
         output to the specified path.
         """
         response = self.adapter.run_cmd(cmd)
-        with open(dest_path, "wb") as handle:
+        with open(dest_path, "w") as handle:
             handle.write(response.results)
     def mac_address_printout(self):
         """
