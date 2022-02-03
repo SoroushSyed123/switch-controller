@@ -56,8 +56,13 @@ class CurlHTTPProvider(HTTPProvider):
         if not "content-type" in headers:
             return "ISO-8859-1"
 
+        # There are no directives inside the content type.
+        content_type = headers["content-type"]
+        if not ";" in content_type:
+            return "ISO-8859-1"
+
         # Split the content type from it's directives.
-        [ content_type, directives_str ] = headers["content-type"].split(";", 1)
+        [ content_type, directives_str ] = content_type.split(";", 1)
         directives = {}
 
         # TODO: Save the directives dict somewhere.
@@ -66,10 +71,10 @@ class CurlHTTPProvider(HTTPProvider):
             directives[key] = value
 
         log.debug(f"Content-Type directives: {directives}")
-        # Return the given charset or our default.
         try:
             return directives["charset"]
         except KeyError:
+            # The Content-Type header has directives, but not of type charset.
             return "ISO-8859-1"
 
     def _parse_curl_stdout(self, stdout):
