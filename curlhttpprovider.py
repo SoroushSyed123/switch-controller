@@ -45,6 +45,33 @@ class CurlHTTPProvider(HTTPProvider):
         log.debug(f"command: {cmd}")
         completed = subprocess.run(cmd, capture_output=True, check=True)
         return self._parse_curl_stdout(completed.stdout)
+
+    def _get_charset(self, headers):
+        """Gets the charset of the response, otherwise defaults to ISO-8859-1.
+        :param headers: Headers response dict.
+        :returns: charset string.
+        """
+
+        # Content-Type header was not included in response.
+        if not "content-type" in headers:
+            return "ISO-8859-1"
+
+        # Split the content type from it's directives.
+        [ content_type, directives_str ] = headers["content-type"].split(";", 1)
+        directives = {}
+
+        # TODO: Save the directives dict somewhere.
+        for directive in directives_str.strip().split(" "):
+            [ key, value ] = directive.split("=")
+            directives[key] = value
+
+        log.debug(f"Content-Type directives: {directives}")
+        # Return the given charset or our default.
+        try:
+            return directives["charset"]
+        except KeyError:
+            return "ISO-8859-1"
+
     def _parse_curl_stdout(self, stdout):
         """Parses the stdout output of the cURL subprocess, returning a 
             `SimpleNamespace` object with the same attirubes as a 
@@ -64,28 +91,8 @@ class CurlHTTPProvider(HTTPProvider):
             [ key, value ] = header.split(":", 1)
             ns.headers[key.lower()] = value
 
-        if not "content-type" in ns.headers:
-            raise ValueError("Expected content-type in response")
-
-        ns.charset = "ISO-8859-1"
-        # Read here for more info:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-        content_type = ns.headers["content-type"]
-        if ";" in content_type:
-            [ content_type, directives ] = ns.headers["content-type"].split(";",
-                    1)
-
-            ns.directives = {}
-
-            for directive in directives.strip().split(" "):
-                [ key, value ] = directive.split("=")
-                ns.directives[key] = value
-
-            try:
-                ns.charset = ns.directives["charset"]
-            except KeyError:
-                # We have already set the default, do nothing.
-                pass
+        ns.charset = self._get_charset(ns.headers)
 
         ns.content = stdout[headers_end+4:]
         log.debug(f"received {len(ns.content)} chars")
