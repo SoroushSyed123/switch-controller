@@ -32,6 +32,8 @@ class RESTSwitchAdapter(SwitchAdapter):
                 raise HTTPError(resp)
             resp_json = json.loads(resp.text)
             result = base64.b64decode(resp_json.pop("result_base64_encoded"))
+            # We don't need this info for now ...
+            resp_json.pop("uri")
             resp_json["results"] = str(result, encoding="utf-8")
             return SwitchResponse(**resp_json)
     class Session:
