@@ -13,6 +13,5 @@ class SwitchAdapter:
 class SwitchResponse:
     cmd: str
     results: str
-    uri: str
     status: str
     error_msg: str
