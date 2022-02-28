@@ -56,13 +56,15 @@ class RESTSwitchAdapter(SwitchAdapter):
             self.cookies = { key: value }
             return self.cookies
         def __exit__(self, etype, evalue, traceback):
+            is_good = True
             if etype is not None:
+                is_good = False
                 log.exception("exception thrown while in session:")
             resp = self.http.request("DELETE", self.url, cookies=self.cookies)
             if not (199 < resp.status_code < 399):
                 raise HTTPError(resp)
             log.info("successfully logged out of session")
-            return True
+            return is_good
 
 class AuthProvider:
     def get_auth(self):
