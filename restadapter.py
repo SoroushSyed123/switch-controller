@@ -49,6 +49,7 @@ class RESTSwitchAdapter(SwitchAdapter):
             }
             resp = self.http.request("POST", self.url, data=json.dumps(data))
             if not (199 < resp.status_code < 399):
+                log.error("cannot retrieve session cookie")
                 raise HTTPError(resp)
             log.info("successfully logged into session")
             resp_json = json.loads(resp.text)
@@ -59,7 +60,8 @@ class RESTSwitchAdapter(SwitchAdapter):
             is_good = True
             if etype is not None:
                 is_good = False
-                log.exception("exception thrown while in session:")
+                # NOTE: Our stack trace will end up getting printed twice!
+                log.exception("unhandled exception while in session")
             resp = self.http.request("DELETE", self.url, cookies=self.cookies)
             if not (199 < resp.status_code < 399):
                 raise HTTPError(resp)

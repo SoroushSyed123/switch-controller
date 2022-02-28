@@ -42,7 +42,6 @@ class CurlHTTPProvider(HTTPProvider):
             for header in headers:
                 cmd.extend([ "-H", header])
 
-        log.debug(f"command: {cmd}")
         completed = subprocess.run(cmd, capture_output=True, check=True)
         return self._parse_curl_stdout(completed.stdout)
 
@@ -103,7 +102,7 @@ class CurlHTTPProvider(HTTPProvider):
         log.debug(f"received {len(ns.content)} chars")
         ns.text = str(ns.content, encoding=ns.charset)
 
-        print(f"server responded with: {status}")
+        log.info(f"server responded with: {status}")
         [ ver, code, reason ] = status.split(" ", 2)
         ns.status_code = int(code)
         ns.reason = reason
