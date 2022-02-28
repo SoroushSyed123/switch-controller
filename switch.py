@@ -7,6 +7,7 @@ from os import environ
 from restadapter import RESTSwitchAdapter
 from manuf import ManufDatabase
 from logging import getLogger
+from datetime import datetime
 
 log = getLogger(__name__)
 
@@ -17,9 +18,17 @@ class NetworkSwitch:
     def backup_running_config(self, dest_path):
         """
         Backup the current running configuration of the network switch to the
-        specified file path.
+        specified file path. Appends to the destination file. Kind of a hack,
+        but that is better than overwriting the existing configuration.
         """
-        self.save_cmd_results("show run", dest_path)
+        response = self.adapter.run_cmd("show run")
+        with open(dest_path, "a") as handle:
+            time = datetime.now().isoformat()
+            pad = "*" * 20
+            # Add a little message to make things easier to read.
+            msg = f"{pad} Running Configuration Change On {time} {pad}\n"
+            handle.write(msg)
+            handle.write(response.results)
     def save_cmd_results(self, cmd, dest_path):
         """
         Run the specified CLI command against the switch and save the textual
