@@ -26,6 +26,7 @@ def setup_parser():
     parser.add_argument("-m", "--manuf", default="manuf.txt")
     parser.add_argument("-c", "--cli-command", default=None)
     parser.add_argument("-l", "--log-path", default="log.txt")
+    parser.add_argument("--head-path", default="HEAD.txt")
 
     return parser
 

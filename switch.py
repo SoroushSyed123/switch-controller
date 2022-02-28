@@ -15,13 +15,26 @@ class NetworkSwitch:
     def __init__(self, adapter, manuf_db):
         self.adapter = adapter
         self.manuf_db = manuf_db
-    def backup_running_config(self, dest_path):
+    def backup_running_config(self, dest_path, head_path):
         """
         Backup the current running configuration of the network switch to the
         specified file path. Appends to the destination file. Kind of a hack,
         but that is better than overwriting the existing configuration.
         """
         response = self.adapter.run_cmd("show run")
+
+        # FIXME: Hardcoding file paths! Make this configurable.
+        # A separate HEAD file is saved and compared to the running
+        # config to determine if there were actually any changes made.
+        with open(head_path, "r+") as handle:
+            if response.results == handle.read():
+                log.info("no changes, nothing to backup")
+                return
+            else:
+                handle.seek(0)
+                handle.write(response.results)
+                handle.truncate()
+
         with open(dest_path, "a") as handle:
             time = datetime.now().isoformat()
             pad = "*" * 20
