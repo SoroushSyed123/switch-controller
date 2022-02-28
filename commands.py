@@ -13,7 +13,7 @@ def command(name):
 
 @command("backup-running-config")
 def backup_config(switch, args):
-    switch.backup_running_config(args.dest_path, args.latest_path)
+    switch.backup_running_config(args.dest_path, args.head_path)
 
 @command("save-cmd-results")
 def save_cmd_results(switch, args):
